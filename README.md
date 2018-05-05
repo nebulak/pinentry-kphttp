@@ -1,6 +1,14 @@
 pinentry-auto
 =============
 
+### SETUP
+
+https://wiki.archlinux.org/index.php/GnuPG#pinentry
+
+Note: must be absolute path
+
+-----------
+
 Automatically sends pin to programs getting a pin via pin-entry. This is sometimes necessary.
 
 Mainly, this is used as a pinentry replacement for GnuPG when used in combination with an OpenPGP smartcard (such as the crypto-stick).
