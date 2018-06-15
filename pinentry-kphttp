@@ -1,0 +1,48 @@
+#!/usr/bin/env python3
+
+from sys import stdin
+from keepasshttpc.protocol import (test_associate, associate,
+                                   retrieve_credentials, get_all_logins)
+
+def reply_ok(text="" ):
+    print('OK ' + text)
+    return
+
+
+def reply_d(text=""):
+    print("D " + text)
+    print("OK")
+
+
+def get_pin():
+    if(test_associate() is False):
+        associate()
+    creds = retrieve_credentials("https://gnupg.org", triggerUnlock=True)
+    info = ""
+    for c in creds:
+        info = c['Password']
+    return info
+
+
+def main():
+    print("OK Your orders please")
+    while 1 == 1:
+        cmd = stdin.readline().rstrip('\n')
+        cmd = cmd.lower()
+
+        if cmd == 'getpin':
+            pw = get_pin()
+            if pw != "":
+                reply_d(pw)
+            else:
+                reply_ok("Pw not found")
+        if cmd == 'bye':
+            reply_ok("closing connection")
+            return
+        if cmd == 'getinfo pid':
+            pass
+        reply_ok()
+
+
+
+main()
