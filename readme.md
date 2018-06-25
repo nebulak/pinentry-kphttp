@@ -6,6 +6,14 @@ A gnupg pinentry program, which automatically retrieves the key from KeePass/Kee
   * KeePass/KeePassX/KeePassXC
   * KeePassHTTP
 
+## TODOs
+  * GTK GUI
+    * Pinentry info: set window info if triggered by the assuan pipe
+    * User input
+      * Select which "PIN" to use with a button
+      * Select to add a new PIN with email-address & password/pin
+      * Select to type it, but not to save it in keepass(necessary if using a smartcard)
+
 ## Setup
   * Add the following URL to your Gnupg-password in keepass:
 
