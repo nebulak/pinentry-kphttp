@@ -1,10 +1,15 @@
 #!/usr/bin/env python3
 import logging
+import Ui
 import os
 import sys
+import gobject
 from sys import stdin
 from keepasshttpc.protocol import (test_associate, associate,
                                    retrieve_credentials, get_all_logins)
+import gi
+gi.require_version('Gtk', '3.0')
+from gi.repository import Gtk
 
 enable_logging = False
 logger = logging.getLogger('pinentry_kphttp')
@@ -14,73 +19,71 @@ fh.setLevel(logging.INFO)
 logger.addHandler(fh)
 
 
-def log(text):
-    logger.info(text)
+class KeePassPinentry(object):
+
+    def __init__(self):
+        self.pin_win = None
+
+    def log(self, text):
+        logger.info(text)
 
 
-def reply_ok(text="" ):
-    print('OK ' + text)
-    try:
-        sys.stdout.flush()
-    except:
-        pass
+    def reply_ok(self, text="" ):
+        print('OK ' + text)
+        try:
+            sys.stdout.flush()
+        except:
+            pass
 
 
-def reply_d(text=""):
-    print("D " + text)
-    try:
-        sys.stdout.flush()
-    except:
-        pass
-    print("OK")
-    try:
-        sys.stdout.flush()
-    except:
-        pass
+    def reply_d(self, text=""):
+        print("D " + text)
+        try:
+            sys.stdout.flush()
+        except:
+            pass
+        print("OK")
+        try:
+            sys.stdout.flush()
+        except:
+            pass
+        self.pin_win.destroy()
 
 
-def get_pin():
-    if(test_associate() is False):
-        associate()
-    creds = retrieve_credentials("https://gnupg.org", triggerUnlock=True)
-    info = ""
-    for c in creds:
-        info = c['Password']
-    return info
+    def get_pin(self):
+        if(test_associate() is False):
+            associate()
+        creds = retrieve_credentials("https://gnupg.org", triggerUnlock=True)
+        info = ""
+        self.pin_win = Ui.PinWindow(self, creds)
+        self.pin_win.show_all()
+        Gtk.main()
 
+    def run(self):
+        self.log("started")
+        self.reply_ok("Your orders please")
+        while 1 == 1:
+            for line in sys.stdin:
+                self.log(line)
+                splits = line.split(' ', 1)
+                cmd = splits.pop(0).strip()
+                cmd = cmd.lower()
+                cmd = cmd.rstrip('\n')
 
-def main():
-    log("started")
-    reply_ok("Your orders please")
-    while 1 == 1:
-        for line in sys.stdin:
-            log(line)
-            splits = line.split(' ', 1)
-            cmd = splits.pop(0).strip()
-            cmd = cmd.lower()
-            cmd = cmd.rstrip('\n')
-
-            if cmd == 'getpin':
-                log('Recognized GETPIN')
-                pw = get_pin()
-                if pw != "":
-                    log('Got Password: ' + pw)
-                    reply_d(pw)
-                    #reply_ok()
+                if cmd == 'getpin':
+                    self.log('Recognized GETPIN')
+                    pw = self.get_pin()
+                elif cmd == 'bye':
+                    self.log('CMD: ' + cmd)
+                    self.reply_ok("closing connection")
+                    return
+                elif cmd == 'getinfo':
+                    self.log('CMD: ' + cmd)
+                    self.reply_d(str(os.getpid()))
                 else:
-                    log('Unable to get password')
-                    reply_ok("Pw not found")
-            elif cmd == 'bye':
-                log('CMD: ' + cmd)
-                reply_ok("closing connection")
-                return
-            elif cmd == 'getinfo':
-                log('CMD: ' + cmd)
-                reply_d(str(os.getpid()))
-            else:
-                log('CMD: ' + cmd)
-                reply_ok()
+                    self.log('CMD: ' + cmd)
+                    self.reply_ok()
 
 
-
-main()
+pinentry = KeePassPinentry()
+pinentry.run()
