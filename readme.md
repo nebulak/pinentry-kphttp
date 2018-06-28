@@ -2,11 +2,14 @@
 
 A gnupg pinentry program, which automatically retrieves the key from KeePass/KeePassX/KeePassXC using the KeePassHTTP-Protocol.
 
+**Status:** experimental/unstable
+
 ## Requirements
   * KeePass/KeePassX/KeePassXC
   * KeePassHTTP
 
 ## TODOs
+  * [ ] Show error if KeePass is not started
   * [ ] GTK GUI
     * [ ] Pinentry info: set window info if triggered by the assuan pipe
     * [ ] User input
